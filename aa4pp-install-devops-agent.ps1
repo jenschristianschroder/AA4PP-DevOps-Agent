@@ -3,10 +3,10 @@
 #To install on your VM run this in PowerShell: iex "& { $(irm https://raw.githubusercontent.com/jenschristianschroder/VM-Configuration/main/aa4pp-devops-agent-vm-setup.ps1) }"
 
 param (
-    [Parameter(Mandatory=$true,Position=1)] [String]$url=$(Throw "devops url is mandatory"), 
-    [Parameter(Mandatory=$true,Position=2)] [Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
-    [Parameter(Mandatory=$false,Position=3)] [String]$pool="default", 
-    [Parameter(Mandatory=$false,Position=4)] [String]$agent=""
+    [Parameter(Mandatory=$true)] [String]$url=$(Throw "devops url is mandatory"), 
+    [Parameter(Mandatory=$true)] [Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
+    [Parameter(Mandatory=$false)] [String]$pool="default", 
+    [Parameter(Mandatory=$false)] [String]$agent=""
 )
 
 
