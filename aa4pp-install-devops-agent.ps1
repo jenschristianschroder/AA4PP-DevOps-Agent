@@ -2,16 +2,12 @@
 #Run this script on a Windows 2019 Server Core by copying the script or using the below powershell command
 #To install on your VM run this in PowerShell: iex "& { $(irm https://raw.githubusercontent.com/jenschristianschroder/VM-Configuration/main/aa4pp-devops-agent-vm-setup.ps1) }"
 
-param ($url, $token, $pool="default", $agent="")
-
-if ($url -eq $null) {
-    Write-Host "DevOps url not supplied. Exiting"
-    exit 1
-}
-if ($token -eq $null) {
-    Write-Host "Personal access token not supplied. Exiting"
-    exit 1
-}
+param (
+    [Parameter(Mandatory=$true,Position=1)] [String]$url=$(Throw "devops url is mandatory"), 
+    [Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
+    $pool="default", 
+    $agent=""
+)
 
 
 #Download and install PowerShell 7.2.1
@@ -61,7 +57,8 @@ Write-Host "Installing DevOp"
 New-Item -Path .\agent -ItemType directory
 Set-Location -Path .\agent
 Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory("$HOME\Downloads\vsts-agent-win-x64-2.195.2.zip", "$PWD")
-.\config.cmd --unattended --url $url --auth pat --token $token --pool $pool --agent $agent --acceptTeeEula --runAsService --windowsLogonAccount "NT Authority\\Network Service"
+$pat = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($token))
+.\config.cmd --unattended --url $url --auth pat --token """$pat""" --pool $pool --agent $agent --acceptTeeEula --runAsService --windowsLogonAccount "NT Authority\\Network Service"
 
 #Reboot
 Restart-Computer
