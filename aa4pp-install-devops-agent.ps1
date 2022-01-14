@@ -4,9 +4,9 @@
 
 param (
     [Parameter(Mandatory=$true,Position=1)] [String]$url=$(Throw "devops url is mandatory"), 
-    [Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
-    $pool="default", 
-    $agent=""
+    [Parameter(Mandatory=$true,Position=2)] [Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
+    [Parameter(Mandatory=$false,Position=3)] [String]$pool="default", 
+    [Parameter(Mandatory=$false,Position=4)] [String]$agent=""
 )
 
 
