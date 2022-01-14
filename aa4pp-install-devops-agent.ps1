@@ -1,6 +1,12 @@
 #This script will setup a Azure DevOps agent with prerequisites to support the ALM Accelerator for Power Platform requirements
 #Run this script on a Windows 2019 Server Core by copying the script or using the below powershell command
 #To install on your VM run this in PowerShell: iex "& { $(irm https://raw.githubusercontent.com/jenschristianschroder/VM-Configuration/main/aa4pp-devops-agent-vm-setup.ps1) }"
+#
+# Paramters
+#   url
+#   token
+#   pool
+#   agent
 
 param (
     [Parameter(Mandatory=$true)] [String]$url=$(Throw "devops url is mandatory"), 
@@ -12,9 +18,9 @@ param (
 
 #Download and install PowerShell 7.2.1
 Write-Host "Downloading PowerShell 7"
-Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.msi  -OutFile  "$HOME\Downloads\PowerShell-7.2.1-win-x64.msi"
+Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.msi  -OutFile  "PowerShell-7.2.1-win-x64.msi"
 Write-Host "Installing PowerShell 7"
-$msi = "$HOME\Downloads\PowerShell-7.2.1-win-x64.msi"
+$msi = "PowerShell-7.2.1-win-x64.msi"
 Start-Process $msi -argumentlist "/passive /norestart" -wait
 Write-Host "Adding PowerShell 7 to PATH"
 $machinePath = [System.Environment]::GetEnvironmentVariable('PATH','Machine')
@@ -52,11 +58,11 @@ else {
 
 #Download and install DevOps Agent
 Write-Host "Downloading DevOps Agent"
-Invoke-WebRequest -Uri https://vstsagentpackage.azureedge.net/agent/2.195.2/vsts-agent-win-x64-2.195.2.zip  -OutFile  "$HOME\Downloads\vsts-agent-win-x64-2.195.2.zip"
+Invoke-WebRequest -Uri https://vstsagentpackage.azureedge.net/agent/2.195.2/vsts-agent-win-x64-2.195.2.zip  -OutFile  "vsts-agent-win-x64-2.195.2.zip"
 Write-Host "Installing DevOp"
 New-Item -Path .\agent -ItemType directory
 Set-Location -Path .\agent
-Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory("$HOME\Downloads\vsts-agent-win-x64-2.195.2.zip", "$PWD")
+Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory("vsts-agent-win-x64-2.195.2.zip", "$PWD")
 $pat = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($token))
 .\config.cmd --unattended --url $url --auth pat --token """$pat""" --pool $pool --agent $agent --acceptTeeEula --runAsService --windowsLogonAccount "NT Authority\\Network Service"
 
