@@ -18,15 +18,22 @@ param (
 
 #Download and install PowerShell 7.2.1
 Write-Host "Downloading PowerShell 7"
-Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.msi  -OutFile  "PowerShell-7.2.1-win-x64.msi"
+New-Item -Path "$($env:ALLUSERPROFILE)\powershell\7" -ItemType directory
+Set-Location -Path "$($env:ALLUSERPROFILE)\powershell\7"
+$currentDir = Get-Location
+Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.zip  -OutFile  "PowerShell-7.2.1-win-x64.zip"
 Write-Host "Installing PowerShell 7"
-$msi = "PowerShell-7.2.1-win-x64.msi"
-Start-Process $msi -argumentlist "/passive /norestart" -wait
+$zipPath = Join-Path -Path $currentDir "PowerShell-7.2.1-win-x64.zip"
+Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, "$PWD")
+#Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.msi  -OutFile  "PowerShell-7.2.1-win-x64.msi"
+#Write-Host "Installing PowerShell 7"
+#$msi = "PowerShell-7.2.1-win-x64.msi"
+#Start-Process $msi -argumentlist "/passive /norestart" -wait
 Write-Host "Adding PowerShell 7 to PATH"
 $machinePath = [System.Environment]::GetEnvironmentVariable('PATH','Machine')
 $machinePathCollection = $machinePath -split ";"
-if($machinePathCollection -NOTCONTAINS "c:\program files\powershell\7") {
-    $machinePath += ";C:\Program Files\PowerShell\7"
+if($machinePathCollection -NOTCONTAINS "$($env:ALLUSERPROFILE)\powershell\7") {
+    $machinePath += ";$($env:ALLUSERPROFILE)\PowerShell\7"
     [System.Environment]::SetEnvironmentVariable('PATH', $machinePath, 'Machine')
 }
 else {
@@ -58,15 +65,15 @@ else {
 
 #Download and install DevOps Agent
 Write-Host "Downloading DevOps Agent"
+New-Item -Path "$($env:ALLUSERPROFILE)\agent" -ItemType directory
+Set-Location -Path "$($env:ALLUSERPROFILE)\agent"
 Invoke-WebRequest -Uri https://vstsagentpackage.azureedge.net/agent/2.195.2/vsts-agent-win-x64-2.195.2.zip  -OutFile  "vsts-agent-win-x64-2.195.2.zip"
-Write-Host "Installing DevOp"
-New-Item -Path .\agent -ItemType directory
-Set-Location -Path .\agent
-Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory("vsts-agent-win-x64-2.195.2.zip", "$PWD")
+Write-Host "Installing DevOps Agent"
+Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory("$($env:ALLUSERPROFILE)\agent\vsts-agent-win-x64-2.195.2.zip", "$PWD")
 $pat = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($token))
+write-host $pat
 .\config.cmd --unattended --url $url --auth pat --token """$pat""" --pool $pool --agent $agent --acceptTeeEula --runAsService --windowsLogonAccount "NT Authority\\Network Service"
 
-#Reboot
-Restart-Computer
+exit 0
 
 

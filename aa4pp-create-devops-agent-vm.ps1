@@ -9,29 +9,30 @@
 #   location (Otional, Default: centralus): the location of the resource group
 #   vmName (Optional, Default: AA4PP-agent): the name of the VM
 #   adminUserName (Mandatory): the administrator username for the VM
-#   adminPassword (Mandatory): the administrator password for the VM. adminPassword must be of type 
-#   url: the url for the DevOps account (https://dev.azure.com/[account])
+#   adminPassword (Mandatory): the administrator password for the VM. adminPassword must be of type SecureString
+#   url (Mandatory): the url for the DevOps account (https://dev.azure.com/[account])
 #   token (Mandatory): the Personal Access Token for the agent to connect to DevOps. token must be of type SecureString
 #   pool (Optional, Default: Default): the Agent Pool that the agent will run in
 #   agent (Optional, Default: $vmName): the name of the DevOps agent
 
 Param (
-    [Parameter(Mandatory=$true,Position=1)] [String]$tenant=$(Throw "tenant id is mandatory"),
-    [Parameter(Mandatory=$true,Position=1)] [String]$subscription=$(Throw "subscription id is mandatory"),
-    [Parameter(Mandatory=$false,Position=2)] [String]$resourceGroup="AA4PP-DevOps-Agent", 
-    [Parameter(Mandatory=$false,Position=3)] [String]$location="centralus", 
-    [Parameter(Mandatory=$false,Position=4)] [String]$vmName="AA4PP-agent",
-    [Parameter(Mandatory=$true,Position=5)] [String]$adminUserName=$(Throw "admin username is mandatory"),
-    [Parameter(Mandatory=$true,Position=6)] [Security.SecureString]$adminPassword=$(Throw "admin password is mandatory"),
-    [Parameter(Mandatory=$true,Position=7)] [String]$url=$(Throw "devops url is mandatory"), 
-    [Parameter(Mandatory=$true,Position=8)][Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
-    [Parameter(Mandatory=$false,Position=9)] [String]$pool="Default", 
-    [Parameter(Mandatory=$false,Position=10)] [String]$agent=""
+    [Parameter(Mandatory=$true)] [String]$tenant=$(Throw "tenant id is mandatory"),
+    [Parameter(Mandatory=$true)] [String]$subscription=$(Throw "subscription id is mandatory"),
+    [Parameter(Mandatory=$false)] [String]$resourceGroup="AA4PP-DevOps-Agent", 
+    [Parameter(Mandatory=$false)] [String]$location="centralus", 
+    [Parameter(Mandatory=$false)] [String]$vmName="AA4PP-agent",
+    [Parameter(Mandatory=$true)] [String]$adminUserName=$(Throw "admin username is mandatory"),
+    [Parameter(Mandatory=$true)] [Security.SecureString]$adminPassword=$(Throw "admin password is mandatory"),
+    [Parameter(Mandatory=$true)] [String]$url=$(Throw "devops url is mandatory"), 
+    [Parameter(Mandatory=$true)][Security.SecureString]$token=$(Throw "PAT token is mandatory"), 
+    [Parameter(Mandatory=$false)] [String]$pool="Default", 
+    [Parameter(Mandatory=$false)] [String]$agent=""
 )
 
 # Login to Azure
 Write-Host "Logging in to Azure"
-az login --tenant $tenant --use-device-code --allow-no-subscriptions
+az login --tenant $tenant 
+#--use-device-code ### something messed up using device code!?
 
 # Set subscription
 Write-Host "Setting subscription"
@@ -65,3 +66,6 @@ az logout
 # Complete
 Write-Host "Provioning and setup complete"
 Write-Host "VM will restart now and agent will connect to $url on start"
+
+# Reboot
+#Restart-Computer
