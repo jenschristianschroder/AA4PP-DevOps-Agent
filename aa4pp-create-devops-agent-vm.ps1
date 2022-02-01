@@ -29,10 +29,11 @@ Param (
     [Parameter(Mandatory=$false)] [String]$agent=""
 )
 
+az account clear
+
 # Login to Azure
 Write-Host "Logging in to Azure"
-az login --tenant $tenant 
-#--use-device-code ### something messed up using device code!?
+az login --use-device-code #--tenant $tenant ### something messed up using device code!?
 
 # Set subscription
 Write-Host "Setting subscription"
@@ -58,9 +59,10 @@ Write-Host "VM provisioning complete"
 Write-Host "Download setup script for DevOps agent and prerequisites for ALM Accelerator for Power Platform"
 az vm run-command invoke --command-id RunPowerShellScript --name $vmName -g $resourceGroup --scripts 'irm https://raw.githubusercontent.com/jenschristianschroder/AA4PP-DevOps-Agent/main/aa4pp-install-devops-agent.ps1 | Out-File aa4pp-install-devops-agent.ps1'
 Write-Host "Installing DevOps agent and prerequisites for ALM Accelerator for Power Platform"
-az vm run-command invoke --command-id RunPowerShellScript --name $vmName -g $resourceGroup --scripts @aa4pp-install-devops-agent.ps1 --parameters "url=$url token=$token pool=$pool agent=$agent" 
+az vm run-command invoke --command-id RunPowerShellScript --name $vmName -g $resourceGroup --scripts @aa4pp-install-devops-agent.ps1 --parameters "url=$url token=$token pool=$pool agent=$agent"
 
 # Log out
+az account clear
 az logout
 
 # Complete

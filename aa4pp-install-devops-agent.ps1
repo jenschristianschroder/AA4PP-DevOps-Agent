@@ -25,10 +25,6 @@ Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/downloa
 Write-Host "Installing PowerShell 7"
 $zipPath = Join-Path -Path $currentDir "PowerShell-7.2.1-win-x64.zip"
 Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, "$PWD")
-#Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.msi  -OutFile  "PowerShell-7.2.1-win-x64.msi"
-#Write-Host "Installing PowerShell 7"
-#$msi = "PowerShell-7.2.1-win-x64.msi"
-#Start-Process $msi -argumentlist "/passive /norestart" -wait
 Write-Host "Adding PowerShell 7 to PATH"
 $machinePath = [System.Environment]::GetEnvironmentVariable('PATH','Machine')
 $machinePathCollection = $machinePath -split ";"
@@ -62,6 +58,30 @@ if($machinePathCollection -NOTCONTAINS "$NuGetFolder") {
 else {
     Write-Host "nuget already in PATH"
 }
+
+#TODO Download and install nodejs
+#Install-Package npm -RequiredVersion 5.3.0
+$npmVersion = "3.5.2"
+$npmPath = Join-Path -Path (Get-Location)  "\npm\"
+if (!(Test-Path $npmPath)) {
+    New-Item -Path "$npmPath" -ItemType directory
+}
+Install-Package -Name npm -RequiredVersion $npmVersion -Destination "$npmPath" -Force
+Write-Host "Adding npm to PATH"
+$machinePath = [System.Environment]::GetEnvironmentVariable('PATH','Machine')
+$machinePathCollection = $machinePath -split ";"
+if($machinePathCollection -NOTCONTAINS "$npmPath\npm.$npmVersion\content\.bin") {
+    $machinePath += ";$npmPath\npm.$npmVersion\content\.bin"
+    [System.Environment]::SetEnvironmentVariable('PATH', $machinePath, 'Machine')
+}
+else {
+    Write-Host "npm already in PATH"
+}
+
+
+
+#TODO Download and install jq
+#https://www.nuget.org/packages/JQ.NET
 
 #Download and install DevOps Agent
 Write-Host "Downloading DevOps Agent"
